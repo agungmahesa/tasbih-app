@@ -56,6 +56,9 @@ jobs:
           else
             echo "Using existing permanent keystore."
           fi
+          
+          echo "DUMPING SHA1 FOR GOOGLE PLAY SUPPORT:"
+          keytool -list -v -keystore tasbih-permanent.keystore -alias tasbih-alias -storepass tasbih123 | grep SHA1
 
       - name: Build and Sign AAB
         working-directory: ./android
