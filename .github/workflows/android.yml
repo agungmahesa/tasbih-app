@@ -42,15 +42,26 @@ jobs:
       - name: Make Gradlew Executable
         run: chmod +x android/gradlew
 
-      - name: Generate Signing Keystore
+      - name: Setup Permanent Signing Keystore
         run: |
-          keytool -genkey -v -keystore tasbih.keystore -alias tasbih-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass tasbih123 -keypass tasbih123 -dname "CN=Agung, OU=TasbihApp, O=Agung, L=Jakarta, S=Jakarta, C=ID"
+          if [ ! -f tasbih-permanent.keystore ]; then
+            echo "Generating new permanent keystore..."
+            keytool -genkey -v -keystore tasbih-permanent.keystore -alias tasbih-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass tasbih123 -keypass tasbih123 -dname "CN=Agung, OU=TasbihApp, O=Agung, L=Jakarta, S=Jakarta, C=ID"
+            
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add tasbih-permanent.keystore
+            git commit -m "Initialize permanent keystore [DO NOT DELETE]"
+            git push origin main
+          else
+            echo "Using existing permanent keystore."
+          fi
 
       - name: Build and Sign AAB
         working-directory: ./android
         run: |
           ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=$(pwd)/../tasbih.keystore \
+            -Pandroid.injected.signing.store.file=$(pwd)/../tasbih-permanent.keystore \
             -Pandroid.injected.signing.store.password=tasbih123 \
             -Pandroid.injected.signing.key.alias=tasbih-alias \
             -Pandroid.injected.signing.key.password=tasbih123 \
@@ -62,8 +73,8 @@ jobs:
           name: app-signed-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
 
-      - name: Upload Keystore (SAVE THIS FOR FUTURE UPDATES)
+      - name: Downloadable Keystore (SAVE THIS!)
         uses: actions/upload-artifact@v4
         with:
-          name: tasbih-keystore
-          path: tasbih.keystore
+          name: tasbih-permanent-keystore
+          path: tasbih-permanent.keystore
