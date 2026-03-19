@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -34,6 +34,9 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Make Gradlew Executable
+        run: chmod +x android/gradlew
 
       - name: Build Android App Bundle (AAB)
         working-directory: ./android
