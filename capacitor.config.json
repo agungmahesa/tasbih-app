@@ -1,0 +1,6 @@
+{
+    "appId": "com.tasbih.app",
+    "appName": "Tasbih App",
+    "webDir": "dist",
+    "bundledWebRuntime": false
+}

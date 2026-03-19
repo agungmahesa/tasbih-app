@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  background-color: #0f172a; /* dhikr-deep */
+  color: #f8fafc; /* dhikr-sand */
+  user-select: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden; /* Prevent scrolling for distraction-free */
+}
+
+/* Custom styles for the tap area */
+.tap-area {
+  -webkit-tap-highlight-color: transparent;
+}
