@@ -25,26 +25,22 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: tasbih-app/package-lock.json
 
       - name: Install dependencies
-        working-directory: ./tasbih-app
         run: npm install
 
       - name: Build web assets
-        working-directory: ./tasbih-app
         run: npm run build
 
       - name: Sync Capacitor
-        working-directory: ./tasbih-app
         run: npx cap sync android
 
       - name: Build Android App Bundle (AAB)
-        working-directory: ./tasbih-app/android
+        working-directory: ./android
         run: ./gradlew bundleRelease
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: app-release-aab
-          path: tasbih-app/android/app/build/outputs/bundle/release/app-release.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
