@@ -32,7 +32,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: var(--bg-card);
             padding: 3rem;
@@ -44,6 +44,8 @@
         header {
             text-align: center;
             margin-bottom: 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 2rem;
         }
 
         h1 {
@@ -60,30 +62,44 @@
             letter-spacing: 1px;
         }
 
-        section {
-            margin-bottom: 2rem;
+        .section-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .lang-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-gold);
+            margin-bottom: 0.5rem;
+            opacity: 0.6;
+            display: block;
         }
 
         h2 {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: var(--primary);
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         h2::before {
             content: '';
-            width: 8px;
-            height: 24px;
+            width: 4px;
+            height: 16px;
             background-color: var(--text-gold);
-            border-radius: 4px;
+            border-radius: 2px;
         }
 
         p {
             margin-bottom: 1rem;
             font-weight: 300;
+            font-size: 0.95rem;
         }
 
         ul {
@@ -93,8 +109,9 @@
 
         li {
             margin-bottom: 0.75rem;
-            padding-left: 1.5rem;
+            padding-left: 1.2rem;
             position: relative;
+            font-size: 0.9rem;
         }
 
         li::before {
@@ -112,8 +129,8 @@
 
         .contact-box {
             background: var(--accent);
-            padding: 1.5rem;
-            border-radius: 16px;
+            padding: 2rem;
+            border-radius: 20px;
             margin-top: 3rem;
             text-align: center;
         }
@@ -124,12 +141,7 @@
             font-weight: 600;
             display: inline-block;
             margin-top: 0.5rem;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.2s;
-        }
-
-        .contact-email:hover {
-            border-color: var(--primary);
+            font-size: 1.1rem;
         }
 
         footer {
@@ -139,7 +151,11 @@
             opacity: 0.5;
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+            .section-pair {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
             .container {
                 padding: 1.5rem;
             }
@@ -150,48 +166,100 @@
     </style>
 </head>
 <body>
-    <div class="container" id="privacy-content">
+    <div class="container">
         <header>
             <h1>Privacy Policy</h1>
             <p>Tasbih Digi</p>
-            <div class="update-date">Terakhir Diperbarui: 19 Maret 2026</div>
+            <div class="update-date">Terakhir Diperbarui / Last Updated: 19 Maret 2026</div>
         </header>
 
-        <section>
-            <h2>1. Pendahuluan</h2>
-            <p>Kami menghormati privasi Anda. Aplikasi <strong>Tasbih Digi</strong> dibuat sebagai alat bantu ibadah yang sederhana. Kebijakan Privasi ini menjelaskan bahwa kami tidak mengumpulkan data pribadi apa pun dari pengguna kami.</p>
-        </section>
+        <!-- Section 1 -->
+        <div class="section-pair">
+            <div class="lang-col">
+                <span class="lang-label">Bahasa Indonesia</span>
+                <h2>1. Pendahuluan</h2>
+                <p>Kami menghormati privasi Anda. Aplikasi <strong>Tasbih Digi</strong> dibuat sebagai alat bantu ibadah yang sederhana. Kebijakan Privasi ini menjelaskan bahwa kami tidak mengumpulkan data pribadi apa pun dari pengguna kami.</p>
+            </div>
+            <div class="lang-col">
+                <span class="lang-label">English</span>
+                <h2>1. Introduction</h2>
+                <p>We respect your privacy. The <strong>Tasbih Digi</strong> app is created as a simple worship aid. This Privacy Policy explains that we do not collect any personal data from our users.</p>
+            </div>
+        </div>
 
-        <section>
-            <h2>2. Pengumpulan Data</h2>
-            <ul>
-                <li><strong>Data Pribadi:</strong> Kami tidak meminta, mengumpulkan, atau menyimpan nama, alamat email, nomor telepon, atau lokasi Anda.</li>
-                <li><strong>Data Perangkat:</strong> Kami tidak mengakses kontak, galeri foto, atau sensor sensitif lainnya di perangkat Anda.</li>
-                <li><strong>Data Penggunaan:</strong> Aplikasi ini bekerja sepenuhnya secara offline. Kami tidak melacak aktivitas penggunaan Anda.</li>
-            </ul>
-        </section>
+        <!-- Section 2 -->
+        <div class="section-pair">
+            <div class="lang-col">
+                <span class="lang-label">Bahasa Indonesia</span>
+                <h2>2. Pengumpulan Data</h2>
+                <ul>
+                    <li><strong>Data Pribadi:</strong> Kami tidak meminta, mengumpulkan, atau menyimpan nama, alamat email, nomor telepon, atau lokasi Anda.</li>
+                    <li><strong>Data Perangkat:</strong> Kami tidak mengakses kontak, galeri foto, atau sensor sensitif lainnya di perangkat Anda.</li>
+                    <li><strong>Data Penggunaan:</strong> Aplikasi ini bekerja sepenuhnya secara offline. Kami tidak melacak aktivitas penggunaan Anda.</li>
+                </ul>
+            </div>
+            <div class="lang-col">
+                <span class="lang-label">English</span>
+                <h2>2. Data Collection</h2>
+                <ul>
+                    <li><strong>Personal Data:</strong> We do not request, collect, or store your name, email address, phone number, or location.</li>
+                    <li><strong>Device Data:</strong> We do not access contacts, photo galleries, or other sensitive sensors on your device.</li>
+                    <li><strong>Usage Data:</strong> This app works fully offline. We do not track your usage activities.</li>
+                </ul>
+            </div>
+        </div>
 
-        <section>
-            <h2>3. Izin Perangkat (Permissions)</h2>
-            <p>Aplikasi ini mungkin memerlukan izin berikut untuk berfungsi:</p>
-            <ul>
-                <li><strong>Vibration (Getar):</strong> Digunakan hanya untuk memberikan umpan balik (haptic feedback) saat Anda menyentuh tombol hitung.</li>
-            </ul>
-        </section>
+        <!-- Section 3 -->
+        <div class="section-pair">
+            <div class="lang-col">
+                <span class="lang-label">Bahasa Indonesia</span>
+                <h2>3. Izin Perangkat</h2>
+                <p>Aplikasi ini mungkin memerlukan izin berikut:</p>
+                <ul>
+                    <li><strong>Vibration (Getar):</strong> Digunakan hanya untuk memberikan umpan balik (haptic feedback) saat menyentuh tombol hitung.</li>
+                </ul>
+            </div>
+            <div class="lang-col">
+                <span class="lang-label">English</span>
+                <h2>3. Device Permissions</h2>
+                <p>This app may require the following permissions:</p>
+                <ul>
+                    <li><strong>Vibration:</strong> Used only to provide haptic feedback when touching the count button.</li>
+                </ul>
+            </div>
+        </div>
 
-        <section>
-            <h2>4. Keamanan</h2>
-            <p>Karena kami tidak mengumpulkan data apa pun, tidak ada data pribadi Anda yang berisiko bocor dari server kami. Semua data hitungan tasbih disimpan secara lokal di perangkat Anda sendiri.</p>
-        </section>
+        <!-- Section 4 -->
+        <div class="section-pair">
+            <div class="lang-col">
+                <span class="lang-label">Bahasa Indonesia</span>
+                <h2>4. Keamanan</h2>
+                <p>Karena kami tidak mengumpulkan data apa pun, tidak ada data pribadi Anda yang berisiko bocor dari server kami. Semua data disimpan secara lokal di perangkat Anda.</p>
+            </div>
+            <div class="lang-col">
+                <span class="lang-label">English</span>
+                <h2>4. Security</h2>
+                <p>Since we do not collect any data, your personal data is not at risk of leaking from our servers. All data is stored locally on your own device.</p>
+            </div>
+        </div>
 
-        <section>
-            <h2>5. Perubahan Kebijakan</h2>
-            <p>Kami dapat memperbarui kebijakan ini sewaktu-waktu. Perubahan akan berlaku segera setelah dipublikasikan di halaman ini.</p>
-        </section>
+        <!-- Section 5 -->
+        <div class="section-pair">
+            <div class="lang-col">
+                <span class="lang-label">Bahasa Indonesia</span>
+                <h2>5. Perubahan Kebijakan</h2>
+                <p>Kami dapat memperbarui kebijakan ini sewaktu-waktu. Perubahan akan berlaku segera setelah dipublikasikan.</p>
+            </div>
+            <div class="lang-col">
+                <span class="lang-label">English</span>
+                <h2>5. Policy Changes</h2>
+                <p>We may update this policy from time to time. Changes will be effective immediately upon publication.</p>
+            </div>
+        </div>
 
         <section class="contact-box">
-            <h2>6. Kontak</h2>
-            <p>Jika Anda memiliki pertanyaan tentang kebijakan ini, silakan hubungi kami melalui email:</p>
+            <h2>6. Kontak / Contact</h2>
+            <p>Jika Anda memiliki pertanyaan tentang kebijakan ini, silakan hubungi kami / If you have questions about this policy, please contact us:</p>
             <a href="mailto:studiobiskuit@gmail.com" class="contact-email">studiobiskuit@gmail.com</a>
         </section>
 
