@@ -70,9 +70,9 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-dhikr-deep text-dhikr-sand select-none touch-none">
+    <div className="flex flex-col h-screen bg-dhikr-deep text-dhikr-sand select-none touch-none overflow-hidden">
       {/* Header */}
-      <header className="flex justify-between items-center p-6 pt-12">
+      <header className="flex justify-between items-center p-6 pt-safe">
         <button
           onClick={() => setShowSettings(true)}
           className="p-2 rounded-full active:bg-white/10 transition-colors"
@@ -103,12 +103,12 @@ function App() {
           initial={{ scale: 0.95, opacity: 0.8 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="text-8xl font-bold tracking-tighter"
+          className="text-9xl font-bold tracking-tighter"
         >
           {count}
         </motion.div>
 
-        <div className="mt-8 text-[10px] uppercase tracking-[0.3em] opacity-30 text-center">
+        <div className="mt-4 text-[12px] uppercase tracking-[0.3em] opacity-40 text-center">
           Ketuk di mana saja<br />
           Tap anywhere to count
         </div>
@@ -134,10 +134,10 @@ function App() {
       </main>
 
       {/* Footer Controls */}
-      <footer className="p-12 flex justify-center">
+      <footer className="p-8 pb-safe flex justify-center">
         <button
           onClick={() => setShowResetConfirm(true)}
-          className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 active:bg-white/20 transition-all font-medium text-sm"
+          className="flex items-center gap-2 px-8 py-4 rounded-full bg-white/5 border border-white/10 active:bg-white/20 transition-all font-medium text-sm"
         >
           <RotateCcw size={16} />
           Reset / Atur Ulang
@@ -190,7 +190,7 @@ function App() {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed inset-0 z-50 bg-dhikr-deep flex flex-col"
           >
-            <header className="flex items-center p-6 pt-12 text-dhikr-sand">
+            <header className="flex items-center p-6 pt-safe text-dhikr-sand border-bottom border-white/10">
               <button onClick={() => setShowSettings(false)} className="p-2 -ml-2"><X size={24} /></button>
               <h2 className="text-xl font-semibold ml-4">Settings / Pengaturan</h2>
             </header>
@@ -232,7 +232,7 @@ function App() {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed inset-0 z-50 bg-dhikr-deep flex flex-col"
           >
-            <header className="flex items-center p-6 pt-12 text-dhikr-sand">
+            <header className="flex items-center p-6 pt-safe text-dhikr-sand border-bottom border-white/10">
               <button onClick={() => setShowHistory(false)} className="p-2 -ml-2"><X size={24} /></button>
               <h2 className="text-xl font-semibold ml-4">History / Riwayat</h2>
             </header>
