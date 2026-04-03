@@ -41,10 +41,14 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Increment Version Code for Play Store
+      - name: Automate Versioning for Play Store
         run: |
-          sed -i 's/versionCode 1/versionCode 2/' android/app/build.gradle
-          sed -i 's/versionName "1.0"/versionName "1.1"/' android/app/build.gradle
+          # Use GitHub Run Number to ensure unique and increasing version codes
+          VERSION_CODE=$((10 + ${{ github.run_number }}))
+          VERSION_NAME="1.1.${{ github.run_number }}"
+          echo "Setting Version Code to $VERSION_CODE and Version Name to $VERSION_NAME"
+          sed -i "s/versionCode 1/versionCode $VERSION_CODE/" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"$VERSION_NAME\"/" android/app/build.gradle
 
       - name: Make Gradlew Executable
         run: chmod +x android/gradlew
