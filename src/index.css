@@ -3,36 +3,39 @@
 @tailwind utilities;
 
 :root {
-  background-color: #0f172a; /* dhikr-deep */
-  color: #f8fafc; /* dhikr-sand */
-  user-select: none;
+  background-color: #00110f;
+  color: #e8f5f3;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
-  overflow: hidden; /* Prevent scrolling for distraction-free */
+  font-family: 'Manrope', sans-serif;
+  overflow: hidden;
+  height: 100dvh;
+  background-color: #00110f;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* Custom styles for the tap area */
-.tap-area {
-  -webkit-tap-highlight-color: transparent;
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
 }
 
-/* Safe Area Utilities */
-.pt-safe {
-  padding-top: env(safe-area-inset-top);
-}
-
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.mt-safe {
-  margin-top: env(safe-area-inset-top);
-}
-
-.mb-safe {
-  margin-bottom: env(safe-area-inset-bottom);
-}
+/* Safe area padding for iOS */
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }

@@ -1,259 +1,381 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { RotateCcw, Settings, History as HistoryIcon, X, Check } from 'lucide-react';
+import { History as HistoryIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TARGET_OPTIONS = [33, 99, 100, '∞'];
 
+// ── Palette ──────────────────────────────────────────────────────────────────
+const C = {
+  bg:       '#00110f',
+  surface:  '#011a18',
+  gold:     '#e9c349',
+  goldDark: '#b8921a',
+  goldText: '#1a0f00',
+  teal:     '#95d3ba',
+  text:     '#e8f5f3',
+};
+
+// ── Shared Styles ─────────────────────────────────────────────────────────────
+const ghostBtn = {
+  background: 'rgba(255,255,255,0.055)',
+  borderRadius: '20px',
+  boxShadow:  'inset 0 1px 0 rgba(255,255,255,0.06)',
+};
+
+const goldBtn = {
+  background: `linear-gradient(150deg, ${C.gold} 0%, ${C.goldDark} 60%, #7a5800 100%)`,
+  boxShadow:  '0 10px 30px rgba(233,195,73,0.35), inset 0 1px 0 rgba(255,255,255,0.3)',
+};
+
 function App() {
   const [count, setCount] = useState(() => {
-    const saved = localStorage.getItem('tasbih_count');
-    return saved ? parseInt(saved, 10) : 0;
+    const s = localStorage.getItem('tasbih_count');
+    return s ? parseInt(s, 10) : 0;
   });
-
   const [target, setTarget] = useState(() => {
-    const saved = localStorage.getItem('tasbih_target');
-    return saved ? (saved === '∞' ? '∞' : parseInt(saved, 10)) : 33;
+    const s = localStorage.getItem('tasbih_target');
+    return s ? (s === '∞' ? '∞' : parseInt(s, 10)) : 33;
   });
-
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [showSettings,     setShowSettings]     = useState(false);
+  const [showHistory,      setShowHistory]      = useState(false);
   const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem('tasbih_history');
-    return saved ? JSON.parse(saved) : [];
+    const s = localStorage.getItem('tasbih_history');
+    return s ? JSON.parse(s) : [];
   });
 
-  // Save count & target to localStorage
-  useEffect(() => {
-    localStorage.setItem('tasbih_count', count.toString());
-  }, [count]);
+  useEffect(() => { localStorage.setItem('tasbih_count',   count.toString()); }, [count]);
+  useEffect(() => { localStorage.setItem('tasbih_target', target.toString()); }, [target]);
 
-  useEffect(() => {
-    localStorage.setItem('tasbih_target', target.toString());
-  }, [target]);
-
-  // Handle increment
-  const increment = useCallback(async () => {
+  const increment = useCallback(() => {
     setCount(prev => {
       const next = prev + 1;
-
-      // Haptic Feedback
-      Haptics.impact({ style: ImpactStyle.Medium }).catch(() => { });
-
-      // Alert if target reached
-      if (typeof target === 'number' && next === target) {
-        Haptics.vibrate().catch(() => { });
-      }
-
+      Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+      if (typeof target === 'number' && next === target)
+        Haptics.vibrate().catch(() => {});
       return next;
     });
   }, [target]);
 
-  // Handle reset
   const resetCount = () => {
-    // Log previous session if count > 0
     if (count > 0) {
-      const newEntry = {
-        id: Date.now(),
-        count,
-        date: new Date().toISOString(),
-        target
-      };
-      const updatedHistory = [newEntry, ...history].slice(0, 50); // Keep last 50
-      setHistory(updatedHistory);
-      localStorage.setItem('tasbih_history', JSON.stringify(updatedHistory));
+      const entry = { id: Date.now(), count, date: new Date().toISOString(), target };
+      const h = [entry, ...history].slice(0, 50);
+      setHistory(h);
+      localStorage.setItem('tasbih_history', JSON.stringify(h));
     }
     setCount(0);
     setShowResetConfirm(false);
-    Haptics.notification({ type: 'SUCCESS' }).catch(() => { });
+    Haptics.notification({ type: 'SUCCESS' }).catch(() => {});
   };
 
+  const progress     = typeof target === 'number' ? Math.min(count / target, 1) : 0;
+  const R            = 46;
+  const circumference = 2 * Math.PI * R;
+  const pct          = typeof target === 'number' ? Math.round((count / target) * 100) : 0;
+
+  // ────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-screen bg-dhikr-deep text-dhikr-sand select-none touch-none overflow-hidden">
-      {/* Header */}
-      <header className="flex justify-between items-center p-6 pt-safe">
+    <div
+      style={{ background: C.bg, color: C.text, fontFamily: "'Manrope',sans-serif" }}
+      className="h-[100dvh] w-full flex flex-col overflow-hidden select-none"
+    >
+
+      {/* ══ HEADER ════════════════════════════════════════════════════════════ */}
+      <header className="flex-none flex items-center justify-between px-4 pt-3 pb-2">
         <button
-          onClick={() => setShowSettings(true)}
-          className="p-2 rounded-full active:bg-white/10 transition-colors"
+          onClick={(e) => { e.stopPropagation(); setShowHistory(true); }}
+          className="w-10 h-10 flex items-center justify-center active:scale-90 transition-transform"
+          style={{ color: C.teal }}
         >
-          <Settings size={24} />
+          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu</span>
         </button>
 
-        <div className="flex flex-col items-center">
-          <span className="text-xs uppercase tracking-widest opacity-50">Target / Sasaran</span>
-          <span className="text-lg font-medium">{target}</span>
-        </div>
+        <h1 style={{ fontFamily: "'Noto Serif',serif", color: C.gold, fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em' }}>
+          Tasbih <span style={{ color: C.teal, fontWeight: 300, fontStyle: 'italic' }}>Digi</span>
+        </h1>
 
         <button
-          onClick={() => setShowHistory(true)}
-          className="p-2 rounded-full active:bg-white/10 transition-colors"
+          onClick={(e) => { e.stopPropagation(); setShowSettings(true); }}
+          className="w-10 h-10 flex items-center justify-center active:scale-90 transition-transform"
+          style={{ color: C.teal }}
         >
-          <HistoryIcon size={24} />
+          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>settings</span>
         </button>
       </header>
 
-      {/* Main Tap Area */}
+      {/* ══ MAIN COUNTER ══════════════════════════════════════════════════════ */}
       <main
-        className="flex-1 flex flex-col items-center justify-center tap-area px-8"
+        className="flex-1 flex flex-col items-center justify-center px-4"
+        style={{ minHeight: 0 }}
         onClick={increment}
       >
-        <motion.div
-          key={count}
-          initial={{ scale: 0.95, opacity: 0.8 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="text-9xl font-bold tracking-tighter"
-        >
-          {count}
-        </motion.div>
+        {/* Hint */}
+        <p style={{ fontSize: 10, letterSpacing: '0.3em', color: C.teal, opacity: 0.45 }}
+           className="uppercase mb-5">
+          {count > 0 ? 'Ketuk untuk tambah' : 'Ketuk layar untuk mulai'}
+        </p>
 
-        <div className="mt-4 text-[12px] uppercase tracking-[0.3em] opacity-40 text-center">
-          Ketuk di mana saja<br />
-          Tap anywhere to count
+        {/* Ring + Number */}
+        <div
+          className="relative flex items-center justify-center"
+          style={{ width: 'min(72vw, 260px)', height: 'min(72vw, 260px)' }}
+        >
+          <svg className="absolute inset-0 w-full h-full" style={{ transform: 'rotate(-90deg)' }} viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+            <circle
+              cx="50" cy="50" r={R} fill="none"
+              stroke={C.gold} strokeWidth="3" strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={circumference * (1 - progress)}
+              style={{ filter: 'drop-shadow(0 0 8px rgba(233,195,73,0.55))', transition: 'stroke-dashoffset 0.35s ease' }}
+            />
+          </svg>
+
+          <div className="relative z-10 flex flex-col items-center">
+            <motion.span
+              key={count}
+              initial={{ scale: 0.82, opacity: 0.5 }}
+              animate={{ scale: 1,    opacity: 1 }}
+              transition={{ duration: 0.12 }}
+              style={{
+                fontFamily: "'Noto Serif',serif",
+                fontSize: 'min(22vw, 84px)',
+                fontWeight: 700,
+                lineHeight: 1,
+                color: C.gold,
+                textShadow: '0 0 40px rgba(233,195,73,0.45)',
+              }}
+            >
+              {count}
+            </motion.span>
+            <span style={{ fontSize: 11, color: C.teal, opacity: 0.55, marginTop: 6, letterSpacing: '0.1em' }}>
+              dari {target}
+            </span>
+          </div>
         </div>
 
-        {/* Visual Progress Ring Buffer (Conceptual) */}
-        {typeof target === 'number' && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-            <svg className="w-64 h-64 transform -rotate-90">
-              <circle
-                cx="128"
-                cy="128"
-                r="120"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="transparent"
-                strokeDasharray={2 * Math.PI * 120}
-                strokeDashoffset={2 * Math.PI * 120 * (1 - Math.min(count / target, 1))}
-                className="transition-all duration-300 ease-out"
-              />
-            </svg>
+        {/* Stats row */}
+        <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+          <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '10px 20px', textAlign: 'center' }}>
+            <div style={{ fontSize: 9, letterSpacing: '0.25em', color: C.teal, opacity: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>Target</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{target}</div>
           </div>
-        )}
+          <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '10px 20px', textAlign: 'center' }}>
+            <div style={{ fontSize: 9, letterSpacing: '0.25em', color: C.teal, opacity: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>Progres</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{pct}%</div>
+          </div>
+        </div>
       </main>
 
-      {/* Footer Controls */}
-      <footer className="p-8 pb-safe flex justify-center">
-        <button
-          onClick={() => setShowResetConfirm(true)}
-          className="flex items-center gap-2 px-8 py-4 rounded-full bg-white/5 border border-white/10 active:bg-white/20 transition-all font-medium text-sm"
-        >
-          <RotateCcw size={16} />
-          Reset / Atur Ulang
-        </button>
-      </footer>
+      {/* ══ ACTION BUTTONS ════════════════════════════════════════════════════ */}
+      <section className="flex-none px-4 pb-5">
+        <div className="grid grid-cols-3 gap-3 items-end max-w-sm mx-auto">
 
-      {/* Reset Confirmation Modal */}
+          {/* Ulangi */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowResetConfirm(true); }}
+            className="flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
+            style={{ ...ghostBtn, height: 76 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 22, color: C.teal }}>refresh</span>
+            <span style={{ fontSize: 9, letterSpacing: '0.2em', color: C.teal, opacity: 0.65, fontWeight: 700 }} className="uppercase">Ulangi</span>
+          </button>
+
+          {/* Simpan — hero button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); Haptics.notification({ type: 'SUCCESS' }).catch(() => {}); }}
+            className="flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
+            style={{ ...goldBtn, borderRadius: '26px', height: 96 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 26, color: C.goldText, fontVariationSettings: "'FILL' 1" }}>bookmark</span>
+            <span style={{ fontSize: 10, letterSpacing: '0.2em', color: C.goldText, fontWeight: 800 }} className="uppercase">Simpan</span>
+          </button>
+
+          {/* Riwayat */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowHistory(true); }}
+            className="flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
+            style={{ ...ghostBtn, height: 76 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 22, color: C.teal }}>history</span>
+            <span style={{ fontSize: 9, letterSpacing: '0.2em', color: C.teal, opacity: 0.65, fontWeight: 700 }} className="uppercase">Riwayat</span>
+          </button>
+        </div>
+      </section>
+
+      {/* ══ MODALS ════════════════════════════════════════════════════════════ */}
+
+      {/* ── 1. Reset Confirm ──────────────────────────────────────────────── */}
       <AnimatePresence>
         {showResetConfirm && (
           <motion.div
+            key="reset-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '24px',
+              background: 'rgba(0,8,7,0.92)',
+              backdropFilter: 'blur(18px)',
+            }}
+            onClick={() => setShowResetConfirm(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-xs text-center"
+              key="reset-modal"
+              initial={{ scale: 0.88, opacity: 0, y: 16 }}
+              animate={{ scale: 1,    opacity: 1, y: 0 }}
+              exit={{ scale: 0.88,    opacity: 0, y: 16 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 340 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%', maxWidth: 300,
+                background: C.surface,
+                borderRadius: 32,
+                padding: '32px 24px',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.7)',
+                textAlign: 'center',
+              }}
             >
-              <h3 className="text-xl font-semibold mb-2">Reset Count?</h3>
-              <p className="text-dhikr-sand/60 mb-8 text-sm">Ini akan mengakhiri sesi saat ini dan menyimpannya ke riwayat / This will end your current session and save it to history.</p>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setShowResetConfirm(false)}
-                  className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 font-medium text-sm"
-                >
-                  Batal / Cancel
-                </button>
-                <button
-                  onClick={resetCount}
-                  className="flex-1 py-4 rounded-2xl bg-red-500/20 border border-red-500/50 text-red-400 font-medium text-sm"
-                >
-                  Reset
-                </button>
+              <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(233,195,73,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28, color: C.gold, lineHeight: 1 }}>restart_alt</span>
               </div>
+
+              <h3 style={{ fontFamily: "'Noto Serif',serif", color: C.gold, fontSize: 20, fontWeight: 700, marginBottom: 10 }}>
+                Mulai Baru?
+              </h3>
+              <p style={{ color: C.teal, opacity: 0.65, fontSize: 13, lineHeight: 1.6, marginBottom: 28 }}>
+                Hitungan akan disimpan otomatis ke riwayat zikir Anda.
+              </p>
+
+              <button
+                onClick={resetCount}
+                className="w-full py-4 mb-3 font-black text-sm tracking-widest uppercase active:scale-95 transition-transform"
+                style={{ ...goldBtn, borderRadius: 18, color: C.goldText }}
+              >
+                Selesai & Reset
+              </button>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="w-full py-3 text-xs tracking-widest uppercase active:scale-95 transition-transform"
+                style={{ color: C.teal, opacity: 0.6, fontWeight: 600, background: 'none', border: 'none' }}
+              >
+                Batal
+              </button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Settings Modal */}
+      {/* ── 2. Settings ───────────────────────────────────────────────────── */}
       <AnimatePresence>
         {showSettings && (
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-50 bg-dhikr-deep flex flex-col"
+            key="settings"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 8000, background: C.bg, display: 'flex', flexDirection: 'column' }}
           >
-            <header className="flex items-center p-6 pt-safe text-dhikr-sand border-bottom border-white/10">
-              <button onClick={() => setShowSettings(false)} className="p-2 -ml-2"><X size={24} /></button>
-              <h2 className="text-xl font-semibold ml-4">Settings / Pengaturan</h2>
+            {/* Header */}
+            <header style={{ display: 'flex', alignItems: 'center', padding: '16px 20px 12px' }}>
+              <button
+                onClick={() => setShowSettings(false)}
+                style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.teal, flexShrink: 0 }}
+                className="active:scale-90 transition-transform"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>close</span>
+              </button>
+              <span style={{ marginLeft: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', fontSize: 13, color: C.gold }}>Pengaturan</span>
             </header>
 
-            <div className="flex-1 p-6 space-y-12">
-              <section>
-                <h3 className="text-xs uppercase tracking-widest opacity-50 mb-6">Pilih Target / Select Target</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {TARGET_OPTIONS.map(opt => (
+            {/* Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 20px 24px' }}>
+              <p style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: C.teal, opacity: 0.45, marginBottom: 16 }}>Pilih Target Zikir</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {TARGET_OPTIONS.map(opt => {
+                  const active = target === opt;
+                  return (
                     <button
                       key={opt}
-                      onClick={() => {
-                        setTarget(opt);
-                        setShowSettings(false);
-                        Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
+                      onClick={() => { setTarget(opt); setShowSettings(false); Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}); }}
+                      className="active:scale-95 transition-all"
+                      style={{
+                        padding: '20px 0',
+                        borderRadius: 18,
+                        fontSize: 22,
+                        fontWeight: 700,
+                        fontFamily: "'Noto Serif',serif",
+                        ...(active
+                          ? { ...goldBtn, color: C.goldText }
+                          : { ...ghostBtn, color: C.text }),
                       }}
-                      className={`py-6 rounded-3xl border transition-all text-xl font-medium ${target === opt
-                          ? 'bg-white text-dhikr-deep border-white'
-                          : 'bg-white/5 border-white/10 text-dhikr-sand'
-                        }`}
                     >
                       {opt}
                     </button>
-                  ))}
-                </div>
-              </section>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* History Modal */}
+      {/* ── 3. History ────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {showHistory && (
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-50 bg-dhikr-deep flex flex-col"
+            key="history"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 8000, background: C.bg, display: 'flex', flexDirection: 'column' }}
           >
-            <header className="flex items-center p-6 pt-safe text-dhikr-sand border-bottom border-white/10">
-              <button onClick={() => setShowHistory(false)} className="p-2 -ml-2"><X size={24} /></button>
-              <h2 className="text-xl font-semibold ml-4">History / Riwayat</h2>
+            {/* Header */}
+            <header style={{ display: 'flex', alignItems: 'center', padding: '16px 20px 12px' }}>
+              <button
+                onClick={() => setShowHistory(false)}
+                style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.teal, flexShrink: 0 }}
+                className="active:scale-90 transition-transform"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>close</span>
+              </button>
+              <span style={{ marginLeft: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', fontSize: 13, color: C.gold }}>Riwayat Zikir</span>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               {history.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full opacity-30 text-center text-dhikr-sand">
-                  <HistoryIcon size={48} className="mb-4" />
-                  <p className="text-sm">Belum ada riwayat.<br />No history yet.<br /><span className="text-xs opacity-50">Sesi disimpan saat Anda menekan Reset.</span></p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: C.teal, opacity: 0.35 }}>
+                  <HistoryIcon size={40} />
+                  <p style={{ fontSize: 14, textAlign: 'center' }}>Belum ada riwayat zikir.<br />Zikir dulu yuk! 🤲</p>
                 </div>
               ) : (
                 history.map(item => (
-                  <div key={item.id} className="p-5 rounded-3xl bg-white/5 border border-white/10 flex justify-between items-center text-dhikr-sand">
+                  <div
+                    key={item.id}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '14px 16px',
+                      background: 'rgba(255,255,255,0.04)',
+                      borderRadius: 16,
+                    }}
+                  >
                     <div>
-                      <div className="text-2xl font-bold">{item.count}</div>
-                      <div className="text-xs opacity-50 mt-1">
-                        {new Date(item.date).toLocaleDateString()} at {new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <div style={{ fontSize: 22, fontWeight: 700, color: C.gold, fontFamily: "'Noto Serif',serif" }}>{item.count}</div>
+                      <div style={{ fontSize: 10, color: C.teal, opacity: 0.5, marginTop: 3 }}>
+                        {new Date(item.date).toLocaleDateString('id-ID')} · {new Date(item.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                    <div className="px-3 py-1 rounded-full bg-white/10 text-[10px] uppercase font-bold tracking-widest">
-                      Target {item.target}
+                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.gold, background: 'rgba(233,195,73,0.1)', padding: '5px 12px', borderRadius: 20 }}>
+                      {item.target}x
                     </div>
                   </div>
                 ))
@@ -262,6 +384,7 @@ function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
