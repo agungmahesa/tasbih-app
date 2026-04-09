@@ -136,9 +136,15 @@ function App() {
   const increment = useCallback(() => {
     setCount(prev => {
       const next = prev + 1;
-      Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-      if (typeof target === 'number' && next === target)
-        Haptics.vibrate().catch(() => {});
+      if (typeof target === 'number' && next === target) {
+        // Triple Heavy pulse to signal target reached — clearly different from normal tap
+        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+        setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 120);
+        setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 240);
+      } else {
+        // Normal dzikir tap — light crisp vibration
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+      }
       return next;
     });
   }, [target]);
@@ -169,7 +175,7 @@ function App() {
     >
 
       {/* ══ HEADER ════════════════════════════════════════════════════════════ */}
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px 8px', flexShrink: 0 }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 44px)', paddingBottom: '8px', paddingLeft: '16px', paddingRight: '16px', flexShrink: 0 }}>
         {/* Menu — Pilih Dzikir (no background, just icon) */}
         <button
           onClick={(e) => { e.stopPropagation(); setShowDzikir(true); }}
